@@ -1,11 +1,11 @@
 'use strict';
-const { validator } = require('sequelize');
+
 
 const bcrypt = require('bcryptjs')
 
 
 const {
-  Model
+  Model, Validator
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -46,12 +46,12 @@ module.exports = (sequelize, DataTypes) => {
       // if a user is found and their password matches return their info scoped
 
       if(user && user.validatePassword(password)){
-        return await User.scope('currentUser').findAndCountAll(user.id)
+        return await User.scope('currentUser').findByPk(user.id)
       }
     }
 
     // Static method for signup
-    static async signup({ username, email, password}){
+    static async signUp({ username, email, password}){
       const hashedPassword = bcrypt.hashSync(password);
       const user = await User.create({
         username,
@@ -75,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
     validate: {
       len: [4,30],
       isNotEmail(value){
-        if(validator.isEmail(value)){
+        if(Validator.isEmail(value)){
           throw new Error("Cannot be an email")
         }
       }
